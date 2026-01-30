@@ -4,6 +4,8 @@ import static org.testng.Assert.assertTrue;
 
 import browser.Browser;
 import browser.Utility;
+import browser.Browser;
+import browser.Utility;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -29,39 +31,26 @@ public class UserRegistrationSteps {
         home = new HomePage(Browser.driver);
         customer = new NewCustomerPage(Browser.driver);
 
-        // Login once before registration
         login.login(
                 Utility.properties("username"),
                 Utility.properties("password")
         );
     }
 
-    @Given("user is logged in to Guru99 bank")
-    public void user_is_logged_in_to_guru99_bank() {
-
-        assertTrue(
-                home.isLoginSuccessful(),
-                "Login failed, cannot proceed with registration"
-        );
-
-        // Navigate to New Customer page
+    @Given("user is logged in and on new customer page")
+    public void user_is_logged_in_and_on_new_customer_page() {
+        assertTrue(home.isLoginSuccessful());
         customer.openNewCustomerPage();
     }
 
-    @When("user enters valid customer details")
-    public void user_enters_valid_customer_details() {
-
-        // Fill complete form from Page class
+    @When("user enters customer details")
+    public void user_enters_customer_details() throws Exception {
         customer.fillCustomerForm();
     }
 
     @Then("customer should be registered successfully")
     public void customer_should_be_registered_successfully() {
-
-        assertTrue(
-                customer.isCustomerRegistered(),
-                "Customer registration failed"
-        );
+        assertTrue(customer.isCustomerRegistered());
     }
 
     @After

@@ -2,124 +2,94 @@ package pages;
 
 import java.time.Duration;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import browser.Utility;
 import locators.NewCustomerLocators;
 
 public class NewCustomerPage {
 
-    private WebDriver driver;
-    private WebDriverWait wait;
-    private JavascriptExecutor js;
+    WebDriver driver;
+    WebDriverWait wait;
 
     public NewCustomerPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        this.js = (JavascriptExecutor) driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
-    /* =========================
-       STEP 1: OPEN PAGE
-       ========================= */
+    // Open New Customer page
     public void openNewCustomerPage() {
-
         wait.until(ExpectedConditions.elementToBeClickable(
                 NewCustomerLocators.newCustomerLink)).click();
+    }
 
-        // Ensure page loaded
+    // Fill New Customer form (simple sendKeys only)
+    public void fillCustomerForm() throws Exception {
+
+        // Customer Name
         wait.until(ExpectedConditions.visibilityOfElementLocated(
-                NewCustomerLocators.customerName));
+                NewCustomerLocators.customerName))
+                .sendKeys(Utility.properties("customer.name"));
+
+        // Gender
+        if (Utility.properties("customer.gender").equalsIgnoreCase("male")) {
+            driver.findElement(NewCustomerLocators.genderMale).click();
+        } else {
+            driver.findElement(NewCustomerLocators.genderFemale).click();
+        }
+
+        // DOB (MM/DD/YYYY)
+        driver.findElement(NewCustomerLocators.dob)
+                .sendKeys(Utility.properties("customer.dob"));
+
+        // Address
+        driver.findElement(NewCustomerLocators.address)
+                .sendKeys(Utility.properties("customer.address"));
+
+        // City
+        driver.findElement(NewCustomerLocators.city)
+                .sendKeys(Utility.properties("customer.city"));
+
+        // State
+        driver.findElement(NewCustomerLocators.state)
+                .sendKeys(Utility.properties("customer.state"));
+
+        // PIN
+        driver.findElement(NewCustomerLocators.pin)
+                .sendKeys(Utility.properties("customer.pin"));
+
+        // Mobile
+        driver.findElement(NewCustomerLocators.mobile)
+                .sendKeys(Utility.properties("customer.mobile"));
+
+        // Email (unique every run)
+        driver.findElement(NewCustomerLocators.email)
+                .sendKeys("test" + System.currentTimeMillis() + "@gmail.com");
+
+        // Password
+        driver.findElement(NewCustomerLocators.password)
+                .sendKeys(Utility.properties("customer.password"));
+
+        // Scroll to Submit
+        WebElement submitBtn = driver.findElement(NewCustomerLocators.submitBtn);
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].scrollIntoView(true);", submitBtn);
+
+        // Click Submit using JS (avoids header overlay issue)
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].click();", submitBtn);
     }
 
-    /* =========================
-       STEP 2: SCROLL DOWN
-       ========================= */
-    private void scrollToForm() {
-
-        WebElement nameField =
-                driver.findElement(NewCustomerLocators.customerName);
-
-        js.executeScript(
-                "arguments[0].scrollIntoView({behavior:'smooth', block:'center'});",
-                nameField);
-
-        pause();
-    }
-
-    /* =========================
-       STEP 3: FILL FORM
-       ========================= */
-    public void fillCustomerForm() {
-
-        scrollToForm();
-
-        type(NewCustomerLocators.customerName, "Test User");
-        click(NewCustomerLocators.genderMale);
-
-        // DOB handled via JS (Guru99 requirement)
-        WebElement dob = driver.findElement(NewCustomerLocators.dob);
-        js.executeScript("arguments[0].value='1995-01-01';", dob);
-        pause();
-
-        type(NewCustomerLocators.address, "Kolkata");
-        type(NewCustomerLocators.city, "Kolkata");
-        type(NewCustomerLocators.state, "WB");
-        type(NewCustomerLocators.pin, "700001");
-        type(NewCustomerLocators.mobile, "9876543210");
-
-        type(NewCustomerLocators.email,
-                "test" + System.currentTimeMillis() + "@mail.com");
-
-        type(NewCustomerLocators.password, "password123");
-
-        click(NewCustomerLocators.submitBtn);
-    }
-
-    /* =========================
-       STEP 4: VERIFY & SCROLL UP
-       ========================= */
+    // Verify registration success
     public boolean isCustomerRegistered() {
 
-        WebElement customerId =
-                wait.until(ExpectedConditions.visibilityOfElementLocated(
-                        NewCustomerLocators.customerIdText));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                NewCustomerLocators.successHeading));
 
-        // Smooth scroll UP to result
-        js.executeScript(
-                "arguments[0].scrollIntoView({behavior:'smooth', block:'center'});",
-                customerId);
-
-        pause();
-
-        return customerId.isDisplayed();
-    }
-
-    /* =========================
-       HELPERS
-       ========================= */
-    private void type(By locator, String value) {
-        WebElement element =
-                wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        element.clear();
-        element.sendKeys(value);
-        pause();
-    }
-
-    private void click(By locator) {
-        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
-        pause();
-    }
-
-    private void pause() {
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            // ignore
-        }
+        return driver.getPageSource().contains("Customer ID");
     }
 }

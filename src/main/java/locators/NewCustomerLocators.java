@@ -7,7 +7,10 @@ public class NewCustomerLocators {
     public static By newCustomerLink = By.linkText("New Customer");
 
     public static By customerName = By.name("name");
+
     public static By genderMale = By.xpath("//input[@value='m']");
+    public static By genderFemale = By.xpath("//input[@value='f']");
+
     public static By dob = By.name("dob");
     public static By address = By.name("addr");
     public static By city = By.name("city");
@@ -19,7 +22,7 @@ public class NewCustomerLocators {
 
     public static By submitBtn = By.name("sub");
 
-    // Success validation
-    public static By customerIdText =
-            By.xpath("//*[contains(text(),'Customer ID')]");
+    // Success page
+    public static By successHeading =
+            By.xpath("//p[contains(text(),'Customer Registered Successfully')]");
 }
